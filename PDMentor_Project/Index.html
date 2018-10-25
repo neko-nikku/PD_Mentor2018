@@ -1,0 +1,485 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="noBoard">
+<head>
+    <title>SparkyChat!</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+        html, body {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .nameTag {
+            color: #8c1d40;
+            font-weight: bold;
+        }
+
+        .msg {
+            margin-top: 5px;
+        }
+
+        .noBoard {
+            height: 100%;
+        }
+
+        .board {
+            height: 50%;
+        }
+
+        .fillHeight {
+            height: 100%;
+        }
+
+        .sizeOuterBoxTyping {
+            height: calc(100vh - 120px);
+        }
+
+        .sizeOuterBoxNotTyping {
+            height: calc(100vh - 85px);
+        }
+
+        .loginBox {
+            width: 150px;
+        }
+
+        .chatInputFocused {
+            height: 60px;
+        }
+
+        .chatInputUnfocused {
+            height: 25px;
+        }
+
+        .card {
+            position: absolute;
+            top: 0px;
+            right: 0px;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        .inputLabel {
+            text-align: right;
+        }
+    </style>
+
+    <script>
+        var checkMessagesFlag = false;
+        var checkMessagesTimer;
+
+        var cardNames = ['createAccountBox', 'loginBox', 'chatBox'];
+        function showCard(cardName) {
+            for (var i = 0; i < cardNames.length; i++) {
+                if (cardName == cardNames[i]) {
+                    $('#' + cardName).css('visibility', 'visible');
+                }
+                else {
+                    $('#' + cardNames[i]).css('visibility', 'hidden');
+                }
+            }
+        }
+
+        function clearChat() {
+            $("#chatPanel").html("");
+        }
+
+        function scrollChat() {
+            $("#chatPanel").scrollTop($("#chatPanel").prop("scrollHeight"));
+        }
+
+        function validateNewAccount() {
+            var valid = true;
+            if ($('#newUid').val() == "") {
+                $('#newUid').css('border', '2px solid red');
+                valid = false;
+            }
+            else {
+                $('#newUid').css('border', '2px solid gray');
+            }
+
+            if ($('#newPass').val() == "") {
+                $('#newPass').css('border', '2px solid red');
+                valid = false;
+            }
+            else {
+                $('#newPass').css('border', '2px solid gray');
+            }
+
+            if ($('#newConfirmPass').val() == "") {
+                $('#newConfirmPass').css('border', '2px solid red');
+                valid = false;
+            }
+            else {
+                $('#newConfirmPass').css('border', '2px solid gray');
+            }
+
+            if ($('#newFName').val() == "") {
+                $('#newFName').css('border', '2px solid red');
+                valid = false;
+            }
+            else {
+                $('#newFName').css('border', '2px solid gray');
+            }
+
+            if ($('#newLName').val() == "") {
+                $('#newLName').css('border', '2px solid red');
+                valid = false;
+            }
+            else {
+                $('#newLName').css('border', '2px solid gray');
+            }
+
+            if ($('#newPass').val() != $('#newConfirmPass').val()) {
+                $('#newConfirmPass').css('border', '2px solid red');
+                valid = false;
+            }
+            return valid;
+        }
+
+        function clearValidateNewAccount() {
+            $('#newUid').css('border', '2px solid gray');
+            $('#newUid').val("");
+            $('#newPass').css('border', '2px solid gray');
+            $('#newPass').val("");
+            $('#newConfirmPass').css('border', '2px solid gray');
+            $('#newConfirmPass').val("");
+            $('#newFName').css('border', '2px solid gray');
+            $('#newFName').val("");
+            $('#newLName').css('border', '2px solid gray');
+            $('#newLName').val("");
+        }
+
+        function CreateAccount() {
+            if (validateNewAccount()) {
+                var webMethod = "sparkychatservices.asmx/CreateAccount";
+                var parameters = "{\"uid\":\"" + encodeURI($('#newUid').val()) + "\",\"pass\":\"" + encodeURI($('#newPass').val()) + "\",\"firstName\":\"" + encodeURI($('#newFName').val()) + "\",\"lastName\":\"" + encodeURI($('#newLName').val()) + "\"}";
+
+                $.ajax({
+                    type: "POST",
+                    url: webMethod,
+                    data: parameters,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        if (msg.d) {
+                            clearChat();
+                            showCard('chatBox');
+                            checkMessagesFlag = true;
+                            CheckMessages(true);
+                            clearValidateNewAccount();
+                        }
+                        else {
+                            $('#newUid').css('border', '1px solid red');
+                        }
+                    },
+                    error: function (e) {
+                        alert("boo...");
+                    }
+                });
+            }
+        }
+
+        function LogOn(userId, pass) {
+            var webMethod = "sparkychatservices.asmx/LogOn";
+            var parameters = "{\"uid\":\"" + encodeURI(userId) + "\",\"pass\":\"" + encodeURI(pass) + "\"}";
+
+            $.ajax({
+                type: "POST",
+                url: webMethod,
+                data: parameters,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d) {
+                        clearChat();
+                        showCard('chatBox');
+                        checkMessagesFlag = true;
+                        CheckMessages();
+                    }
+                    else {
+                        alert("logon failed");
+                    }
+                },
+                error: function (e) {
+                    alert("boo...");
+                }
+            });
+        }
+
+        function LogOff() {
+
+            var webMethod = "sparkychatservices.asmx/LogOff";
+            $.ajax({
+                type: "POST",
+                url: webMethod,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d) {
+                        showCard('loginBox');
+                        clearChat();
+                    }
+                    else {
+                    }
+                },
+                error: function (e) {
+                    alert("boo...");
+                }
+            });
+        }
+
+        function SendMessage(message) {
+            var webMethod = "sparkychatservices.asmx/SendMessage";
+            var parameters = "{\"message\":\"" + encodeURI(message) + "\"}";
+
+            $.ajax({
+                type: "POST",
+                url: webMethod,
+                data: parameters,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (msg) {
+                    if (msg.d) {
+                        $('#chatText').val('');
+                        checkMessagesFlag = false;
+                        clearTimeout(checkMessagesTimer);
+                        CheckMessages(true);
+                    }
+                    else {
+                        alert("send failed");
+                    }
+                },
+                error: function (e) {
+                    alert("boo...");
+                }
+            });
+        }
+
+        function CheckMessages(resetFlag) {
+            resetFlag = resetFlag || false;
+            if (resetFlag) {
+                checkMessagesFlag = true;
+            }
+            if (checkMessagesFlag) {
+                //alert("checking");
+                var webMethod = "sparkychatservices.asmx/GetMessages";
+                //var parameters = "{}";
+
+                $.ajax({
+                    type: "POST",
+                    url: webMethod,
+                    //data: parameters,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (msg) {
+                        if (msg.d.length > 0) {
+                            for (var i = 0; i < msg.d.length; i++) {
+                                $("#chatPanel").append(
+                                    "<div class='msg' id='msg" + msg.d[i].id + "'>" +
+                                    "<span class='nameTag'>" +
+                                    msg.d[i].userName +
+                                    ":</span> <span class='msgTag'>" +
+                                    msg.d[i].message +
+                                    "</span></div>"
+                                );
+                            }
+                        }
+
+                        scrollChat();
+                        if (checkMessagesFlag) {
+                            checkMessagesTimer = setTimeout(function () { CheckMessages() }, 5000);
+                        }
+                    },
+                    error: function (e) {
+                        alert("boo...");
+                    }
+                });
+            }
+        }
+
+        var txtFocus = false;
+        var innerHeight = 0;
+        jQuery(function () {
+
+
+            $("#chatText").focus(function () {
+                //alert('in');
+
+                $("#chatInput").removeClass("chatInputUnfocused");
+                $("#chatInput").addClass("chatInputFocused");
+
+
+                //$("body").removeClass("noBoard");
+                //$("body").addClass("board");
+                //setTimeout(function () { $("#chatBox").css('height', (window.innerHeight - 120) + "px"); }, 50);
+                txtFocus = true;
+                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/i)) {
+                    setTimeout(function () {
+                        $("html").removeClass("noBoard");
+                        $("html").addClass("board");
+                        $('body').scrollTop(0);
+                        scrollChat();
+                    }, 300);
+                }
+                scrollChat();
+
+            });
+
+            $("#chatText").focusout(function () {
+                //alert('out');
+                $("#chatInput").addClass("chatInputUnfocused");
+                $("#chatInput").removeClass("chatInputFocused");
+                $("html").removeClass("board");
+                $("html").addClass("noBoard");
+                //$("body").removeClass("board");
+                //$("body").addClass("noBoard");
+                scrollChat();
+
+            });
+
+            /*
+            $("#window").resize(function () {
+                if (txtFocus) {
+                    $("#chatBox").css('height', (window.innerHeight - 120) + "px");
+                }
+            });
+            */
+
+
+            $("#chatText").on("keypress", function (e) {
+                if (e.keyCode == 13) {
+                    SendMessage($("#chatText").val());
+                }
+            });
+        });
+    </script>
+
+</head>
+<body class="noBoard">
+
+    <nav class="navbar navbar-default" style="display:flex; flex-direction:column;">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><img src="sparky.png" /></a>
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#" onclick="showCard('createAccountBox');" data-toggle="collapse" data-target="#myNavbar"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="#" onclick="LogOff()" data-toggle="collapse" data-target="#myNavbar"><span class="glyphicon glyphicon-log-in"></span> Log On</a></li>
+                    <li><a href="#" onclick="LogOff()" data-toggle="collapse" data-target="#myNavbar"><span class="glyphicon glyphicon-log-out"></span> Log Off</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="cardHolder" style="display:flex; flex-direction:column; flex: 1; position: relative; height:0px;">
+        <div id="loginBox" class="container-fluid card">
+            <div class="row-fluid">
+                <div class="col-xs-4 inputLabel">
+                    User ID:
+                </div>
+                <div class="col-xs-8">
+                    <input class="loginBox" type="text" id="uid" autocorrect="off" autocapitalize="none" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-4 inputLabel">
+                    Password:
+                </div>
+                <div class="col-xs-8">
+                    <input class="loginBox" type="password" id="pass" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-12" style="text-align:center;">
+                    <a onclick="showCard('createAccountBox');">create new account</a> or
+                    <button class="btn btn-default" onclick="LogOn($('#uid').val(), $('#pass').val())">Log On</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="chatBox" class="container-fluid card" style="visibility:hidden; display:flex; flex-direction:column;">
+            <div class="row-fluid" style="display:flex; flex-direction:column; flex: 1; height:0px;">
+                <div class="col-xs-12" style="height:100%;">
+                    <div class="panel panel-default" style="height:100%;">
+                        <div id="chatPanel" class="panel-body" style="overflow-y: scroll; height:100%;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row-fluid" style="display:flex; flex-direction:column;">
+                <div id="chatInput" class="chatInputUnfocused col-xs-12" style="overflow:hidden;">
+                    <textarea id="chatText" style="width:100%; height:100%; overflow:hidden; border:2px solid gray;" placeholder="Type your message here..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="createAccountBox" class="container-fluid card" style="visibility:hidden;">
+            <div class="row-fluid">
+                <div class="col-xs-12" style="text-align:center;">
+                    <h4>Create an account</h4>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-6 inputLabel">
+                    User ID:
+                </div>
+                <div class="col-xs-6">
+                    <input class="loginBox" type="text" id="newUid" autocorrect="off" autocapitalize="none" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-6 inputLabel">
+                    Password:
+                </div>
+                <div class="col-xs-6">
+                    <input class="loginBox" type="password" id="newPass" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-6 inputLabel">
+                    Confirm Password:
+                </div>
+                <div class="col-xs-6">
+                    <input class="loginBox" type="password" id="newConfirmPass" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-6 inputLabel">
+                    First Name:
+                </div>
+                <div class="col-xs-6">
+                    <input class="loginBox" type="text" id="newFName" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-6 inputLabel">
+                    Last Name:
+                </div>
+                <div class="col-xs-6">
+                    <input class="loginBox" type="text" id="newLName" />
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="col-xs-12" style="text-align:right;">
+                    <button class="btn btn-default" onclick="CreateAccount()">Create Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
