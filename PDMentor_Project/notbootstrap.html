@@ -244,7 +244,7 @@
 		//cancel the scheduled message check in this variable!
 		var checkMessagesTimer;
 		function CheckMessages() {
-			var webMethod = "PDMentorWebServices.asmx/GetMessages";
+			var webMethod = "PDMentorWebService.asmx/GetMessages";
 			$.ajax({
 				type: "POST",
 				url: webMethod,
@@ -292,7 +292,7 @@
 		}
 
 		function SendMessage(message) {
-			var webMethod = "PDMentorWebServices.asmx/SendMessage";
+			var webMethod = "PDMentorWebService.asmx/SendMessage";
 			var parameters = "{\"message\":\"" + encodeURI(message) + "\"}";
 
 			$.ajax({
@@ -405,7 +405,7 @@
 			//our validation function and it's returned true, telling
 			//us the inputs are good to go!
 			if (validateNewAccount()) {
-				var webMethod = "PDMentorWebServices.asmx/CreateAccount";
+				var webMethod = "PDMentorWebService.asmx/CreateAccount";
 				var parameters = "{\"uid\":\"" + encodeURI(id) + "\",\"pass\":\"" + encodeURI(pass) + "\",\"firstName\":\"" + encodeURI(fname) + "\",\"lastName\":\"" + encodeURI(lname) + "\"}";
 
 				$.ajax({
@@ -435,7 +435,7 @@
 
 		function LogOff() {
 
-			var webMethod = "PDMentorWebServices.asmx/LogOff";
+			var webMethod = "PDMentorWebService.asmx/LogOff";
 			$.ajax({
 				type: "POST",
 				url: webMethod,
