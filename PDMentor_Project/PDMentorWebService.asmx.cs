@@ -50,7 +50,7 @@ namespace PDMentor_Project
             bool success = false;
 
             //our connection string comes from our web.config file like we talked about earlier
-            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["rcsdatabaseConnectionString"].ConnectionString;
             //here's our query.  A basic select with nothing fancy.  Note the parameters that begin with @
             string sqlSelect = "SELECT id FROM useraccount WHERE username=@idValue and password=@passValue";
 
@@ -112,7 +112,7 @@ namespace PDMentor_Project
             //again, this is either gonna work or it won't.  We return this flag to let them
             //know if account creation was successful
             bool success = false;
-            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+            string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["rcsdatabaseConnectionString"].ConnectionString;
             //the only thing fancy about this query is SELECT SCOPE_IDENTITY() at the end.  All that
             //does is tell sql server to return the primary key of the last inserted row.
             //we want this, because if the account gets created we will automatically
@@ -170,7 +170,7 @@ namespace PDMentor_Project
             //if it is, we won't let them send a message!
             if (Session["id"] != null)
             {
-                string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+                string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["rcsdatabaseConnectionString"].ConnectionString;
                 string sqlSelect = "insert into message (useraccountid, message) " +
                     "values(@idValue, @messageValue);";
 
@@ -235,7 +235,7 @@ namespace PDMentor_Project
                 {
                     lastMessageId = Convert.ToInt32(Session["lastmessageid"]);
                 }
-                string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["myDB"].ConnectionString;
+                string sqlConnectString = System.Configuration.ConfigurationManager.ConnectionStrings["rcsdatabaseConnectionString"].ConnectionString;
                 string sqlSelect;
                 if (lastMessageId == -1)
                 {
