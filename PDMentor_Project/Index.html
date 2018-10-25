@@ -160,7 +160,7 @@
 
         function CreateAccount() {
             if (validateNewAccount()) {
-                var webMethod = "sparkychatservices.asmx/CreateAccount";
+                var webMethod = "PDMentorWebService.asmx/CreateAccount";
                 var parameters = "{\"uid\":\"" + encodeURI($('#newUid').val()) + "\",\"pass\":\"" + encodeURI($('#newPass').val()) + "\",\"firstName\":\"" + encodeURI($('#newFName').val()) + "\",\"lastName\":\"" + encodeURI($('#newLName').val()) + "\"}";
 
                 $.ajax({
@@ -189,7 +189,7 @@
         }
 
         function LogOn(userId, pass) {
-            var webMethod = "sparkychatservices.asmx/LogOn";
+            var webMethod = "PDMentorWebService.asmx/LogOn";
             var parameters = "{\"uid\":\"" + encodeURI(userId) + "\",\"pass\":\"" + encodeURI(pass) + "\"}";
 
             $.ajax({
@@ -217,7 +217,7 @@
 
         function LogOff() {
 
-            var webMethod = "sparkychatservices.asmx/LogOff";
+            var webMethod = "PDMentorWebService.asmx/LogOff";
             $.ajax({
                 type: "POST",
                 url: webMethod,
@@ -238,7 +238,7 @@
         }
 
         function SendMessage(message) {
-            var webMethod = "sparkychatservices.asmx/SendMessage";
+            var webMethod = "PDMentorWebService.asmx/SendMessage";
             var parameters = "{\"message\":\"" + encodeURI(message) + "\"}";
 
             $.ajax({
@@ -271,7 +271,7 @@
             }
             if (checkMessagesFlag) {
                 //alert("checking");
-                var webMethod = "sparkychatservices.asmx/GetMessages";
+                var webMethod = "PDMentorWebService.asmx/GetMessages";
                 //var parameters = "{}";
 
                 $.ajax({
