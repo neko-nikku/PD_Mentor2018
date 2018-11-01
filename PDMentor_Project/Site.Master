@@ -15,7 +15,7 @@
     <webopt:bundlereference runat="server" path="~/Content/css" />
 
     <%--Commented this out to see if the broken link was causing the ERROR 502--%>
-    <%--<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />--%>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
 
 </head>
 <body>
